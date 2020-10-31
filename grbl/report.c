@@ -222,6 +222,12 @@ void report_grbl_settings() {
     }
     val += AXIS_SETTINGS_INCREMENT;
   }
+
+#ifdef MIHOSOFT_EXTENSIONS_ENABLED
+  printPgmString(PSTR("miho-settings:\r\n"));
+  serial_write('$'); print_uint8_base10(MIHOSOFT_DISABLE_EEPROM_WRITE_SETTING_IDX); serial_write('=');
+  print_uint8_base10(mihosoft_disable_eeprom_write); printPgmString(PSTR(" (disable eeprom write, boolean)\r\n"));
+#endif
 }
 
 

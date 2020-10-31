@@ -23,6 +23,10 @@
 
 settings_t settings;
 
+#ifdef MIHOSOFT_EXTENSIONS_ENABLED
+bool mihosoft_disable_eeprom_write=false;
+#endif
+
 const __flash settings_t defaults = {\
     .pulse_microseconds = DEFAULT_STEP_PULSE_MICROSECONDS,
     .stepper_idle_lock_time = DEFAULT_STEPPER_IDLE_LOCK_TIME,
@@ -191,6 +195,14 @@ uint8_t read_global_settings() {
 
 // A helper method to set settings from command line
 uint8_t settings_store_global_setting(uint8_t parameter, float value) {
+
+  // check for MIHOSOFT specific settings
+#ifdef MIHOSOFT_EXTENSIONS_ENABLED
+  if(parameter==200) {
+    mihosoft_disable_eeprom_write = value > 0.0;
+    return STATUS_OK;
+  }
+#endif  
   if (value < 0.0) { return(STATUS_NEGATIVE_VALUE); }
   if (parameter >= AXIS_SETTINGS_START_VAL) {
     // Store axis configuration. Axis numbering sequence set by AXIS_SETTING defines.
@@ -298,7 +310,14 @@ uint8_t settings_store_global_setting(uint8_t parameter, float value) {
         return(STATUS_INVALID_STATEMENT);
     }
   }
-  write_global_settings();
+
+  // Only write to eeprom if not disabled
+#ifdef MIHOSOFT_EXTENSIONS_ENABLED  
+  if(mihosoft_disable_eeprom_write==false) {
+    write_global_settings();
+  }
+#endif
+
   return(STATUS_OK);
 }
 

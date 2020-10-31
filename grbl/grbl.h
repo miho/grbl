@@ -21,9 +21,16 @@
 #ifndef grbl_h
 #define grbl_h
 
+#include "mihosoft.h"
+
 // Grbl versioning system
+#ifdef MIHOSOFT_EXTENSIONS_ENABLED
+#define GRBL_VERSION "1.1h (miho)"
+#else
 #define GRBL_VERSION "1.1h"
-#define GRBL_VERSION_BUILD "20190830"
+#endif
+
+#define GRBL_VERSION_BUILD "20201031"
 
 // Define standard libraries used by Grbl.
 #include <avr/io.h>
