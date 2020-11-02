@@ -28,7 +28,6 @@
 
 #include "grbl.h"
 
-
 // Internal report utilities to reduce flash with repetitive tasks turned into functions.
 void report_util_setting_prefix(uint8_t n) { serial_write('$'); print_uint8_base10(n); serial_write('='); }
 static void report_util_line_feed() { printPgmString(PSTR("\r\n")); }
@@ -181,6 +180,7 @@ void report_grbl_help() {
 // Grbl global settings print out.
 // NOTE: The numbering scheme here must correlate to storing in settings.c
 void report_grbl_settings() {
+
   // Print Grbl settings.
   report_util_uint8_setting(0,settings.pulse_microseconds);
   report_util_uint8_setting(1,settings.stepper_idle_lock_time);
@@ -584,7 +584,7 @@ void report_realtime_status()
             if (bit_istrue(lim_pin_state,bit(Y_AXIS))) { serial_write('Y'); }
           #endif
           #if (DUAL_AXIS_SELECT == Y_AXIS)
-            if (bit_istrue(lim_pin_state,bit(X_AXIS))) { serial_write('X'); }
+            if (bit_istrue(lim_pin_state,bit(X_AXIS))) { serial_write('X'); 
             if (bit_istrue(lim_pin_state,(bit(Y_AXIS)|bit(N_AXIS)))) { serial_write('Y'); }
           #endif
           if (bit_istrue(lim_pin_state,bit(Z_AXIS))) { serial_write('Z'); }

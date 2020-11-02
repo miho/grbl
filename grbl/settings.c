@@ -22,7 +22,14 @@
 #include "grbl.h"
 
 settings_t settings;
-
+// MIHOSOFT specific variable which determines whether to 
+// store settings to eeprom. Since we change acceleration
+// and other settings quite frequently, we need to disable
+// eeprom writes to prevent the hardware from being damaged.
+// This setting can be configured via 
+//
+// '$200=0' -> feature disabled, i.e., eeprom is used if settings are changed
+// '$200=1' -> feature enabled, i.e., eeprom is not used if settings are changed
 #ifdef MIHOSOFT_EXTENSIONS_ENABLED
 bool mihosoft_disable_eeprom_write=false;
 #endif
@@ -202,7 +209,7 @@ uint8_t settings_store_global_setting(uint8_t parameter, float value) {
     mihosoft_disable_eeprom_write = value > 0.0;
     return STATUS_OK;
   }
-#endif  
+#endif
   if (value < 0.0) { return(STATUS_NEGATIVE_VALUE); }
   if (parameter >= AXIS_SETTINGS_START_VAL) {
     // Store axis configuration. Axis numbering sequence set by AXIS_SETTING defines.
