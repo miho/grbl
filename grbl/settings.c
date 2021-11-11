@@ -306,7 +306,9 @@ uint8_t settings_store_global_setting(uint8_t parameter, float value) {
       case 30: settings.rpm_max = value; spindle_init(); break; // Re-initialize spindle rpm calibration
       case 31: settings.rpm_min = value; spindle_init(); break; // Re-initialize spindle rpm calibration
       case 32:
-        #ifdef VARIABLE_SPINDLE
+        // we allow laser mode even if no variable spindle speed is used
+        // this case is still usefull, the pin is just a trigger pin in this case
+        #if defined(VARIABLE_SPINDLE) || defined(MIHOSOFT_EXTENSIONS_ENABLED)
           if (int_value) { settings.flags |= BITFLAG_LASER_MODE; }
           else { settings.flags &= ~BITFLAG_LASER_MODE; }
         #else
