@@ -25,7 +25,7 @@
 
 // Grbl versioning system
 #ifdef MIHOSOFT_EXTENSIONS_ENABLED
-#define GRBL_VERSION "1.1h (miho)"
+#define GRBL_VERSION "1.1h (miho 001)"
 #else
 #define GRBL_VERSION "1.1h"
 #endif
