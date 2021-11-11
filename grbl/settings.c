@@ -323,6 +323,8 @@ uint8_t settings_store_global_setting(uint8_t parameter, float value) {
   if(mihosoft_disable_eeprom_write==false) {
     write_global_settings();
   }
+#else
+    write_global_settings();  
 #endif
 
   return(STATUS_OK);
