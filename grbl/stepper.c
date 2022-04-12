@@ -399,6 +399,19 @@ ISR(TIMER1_COMPA_vect)
       system_set_exec_state_flag(EXEC_CYCLE_STOP); // Flag main program for cycle end
       return; // Nothing to do but exit.
     }
+
+
+// disable spindle pin
+#ifdef MIHOSOFT_EXTENSIONS_ENABLED    
+  if(mihosoft_enable_spindle_toggle) {
+    #ifdef INVERT_SPINDLE_ENABLE_PIN
+      SPINDLE_ENABLE_PORT |= (1<<SPINDLE_ENABLE_BIT);  // Set pin to high
+    #else
+      SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT); // Set pin to low
+    #endif
+  }
+  
+#endif 
   }
 
 
@@ -462,10 +475,23 @@ ISR(TIMER1_COMPA_vect)
 
   st.step_count--; // Decrement step events count
   if (st.step_count == 0) {
+
+// enable spindle pin
+#ifdef MIHOSOFT_EXTENSIONS_ENABLED    
+  if(mihosoft_enable_spindle_toggle) {
+    #ifdef INVERT_SPINDLE_ENABLE_PIN
+      SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT); // Set pin to low
+    #else
+      SPINDLE_ENABLE_PORT |= (1<<SPINDLE_ENABLE_BIT);  // Set pin to high
+    #endif
+  }
+#endif 
+
     // Segment is complete. Discard current segment and advance segment indexing.
     st.exec_segment = NULL;
     if ( ++segment_buffer_tail == SEGMENT_BUFFER_SIZE) { segment_buffer_tail = 0; }
   }
+
 
   st.step_outbits ^= step_port_invert_mask;  // Apply step port invert mask
   #ifdef ENABLE_DUAL_AXIS

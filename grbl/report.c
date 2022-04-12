@@ -227,6 +227,8 @@ void report_grbl_settings() {
   printPgmString(PSTR("miho-settings:\r\n"));
   serial_write('$'); print_uint8_base10(MIHOSOFT_DISABLE_EEPROM_WRITE_SETTING_IDX); serial_write('=');
   print_uint8_base10(mihosoft_disable_eeprom_write); printPgmString(PSTR(" (disable eeprom write, boolean)\r\n"));
+  serial_write('$'); print_uint8_base10(MIHOSOFT_ENABLE_SPINDLE_TOGGLE_IDX); serial_write('=');
+  print_uint8_base10(mihosoft_enable_spindle_toggle); printPgmString(PSTR(" (enable spindle toggle, boolean)\r\n"));
 #endif
 }
 

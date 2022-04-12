@@ -39,8 +39,21 @@
 //
 // '$200=0' -> feature disabled, i.e., eeprom is used if settings are changed
 // '$200=1' -> feature enabled, i.e., eeprom is not used if settings are changed
+
+
+#define MIHOSOFT_ENABLE_SPINDLE_TOGGLE_IDX 201
+
+// MIHOSOFT specific variable which determines whether to 
+// toggle spindle pin on segment start.
+// This setting can be configured via 
+//
+// '$201=0' -> feature disabled, i.e., no spindle toggle on segment start
+// '$201=1' -> feature enabled, i.e.,  spindle toggle on segment start
+
+
 #ifdef MIHOSOFT_EXTENSIONS_ENABLED
 extern bool mihosoft_disable_eeprom_write;
+extern bool mihosoft_enable_spindle_toggle;
 #endif
 
 #endif // BFX_H

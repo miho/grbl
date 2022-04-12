@@ -30,8 +30,17 @@ settings_t settings;
 //
 // '$200=0' -> feature disabled, i.e., eeprom is used if settings are changed
 // '$200=1' -> feature enabled, i.e., eeprom is not used if settings are changed
+//
+//
+// MIHOSOFT specific variable which determines whether to 
+// toggle spindle pin on segment start.
+// This setting can be configured via 
+//
+// '$201=0' -> feature disabled, i.e., no spindle toggle on segment start
+// '$201=1' -> feature enabled, i.e.,  spindle toggle on segment start
 #ifdef MIHOSOFT_EXTENSIONS_ENABLED
 bool mihosoft_disable_eeprom_write=false;
+bool mihosoft_enable_spindle_toggle=false;
 #endif
 
 const __flash settings_t defaults = {\
@@ -205,8 +214,11 @@ uint8_t settings_store_global_setting(uint8_t parameter, float value) {
 
   // check for MIHOSOFT specific settings
 #ifdef MIHOSOFT_EXTENSIONS_ENABLED
-  if(parameter==200) {
+  if(parameter==MIHOSOFT_DISABLE_EEPROM_WRITE_SETTING_IDX) {
     mihosoft_disable_eeprom_write = value > 0.0;
+    return STATUS_OK;
+  } else if(parameter==MIHOSOFT_ENABLE_SPINDLE_TOGGLE_IDX) {
+    mihosoft_enable_spindle_toggle = value > 0.0;
     return STATUS_OK;
   }
 #endif
