@@ -73,6 +73,9 @@ typedef struct {
   #ifdef VARIABLE_SPINDLE
     uint8_t is_pwm_rate_adjusted; // Tracks motions that require constant laser power/rate
   #endif
+  #ifdef MIHOSOFT_EXTENSIONS_ENABLED
+    uint8_t spindle_toggle;
+  #endif
 } st_block_t;
 static st_block_t st_block_buffer[SEGMENT_BUFFER_SIZE-1];
 
@@ -91,6 +94,9 @@ typedef struct {
   #endif
   #ifdef VARIABLE_SPINDLE
     uint8_t spindle_pwm;
+  #endif
+  #ifdef MIHOSOFT_EXTENSIONS_ENABLED
+    uint8_t spindle_toggle;
   #endif
 } segment_t;
 static segment_t segment_buffer[SEGMENT_BUFFER_SIZE];
@@ -369,6 +375,31 @@ ISR(TIMER1_COMPA_vect)
         st.exec_block_index = st.exec_segment->st_block_index;
         st.exec_block = &st_block_buffer[st.exec_block_index];
 
+
+
+        #ifdef MIHOSOFT_EXTENSIONS_ENABLED    
+        // enable spindle pin
+          if(mihosoft_enable_spindle_toggle && st.exec_block->spindle_toggle) {
+            #ifdef INVERT_SPINDLE_ENABLE_PIN
+              SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT); // Set pin to low
+            #else
+              SPINDLE_ENABLE_PORT |= (1<<SPINDLE_ENABLE_BIT);  // Set pin to high
+            #endif
+          }
+        
+              // disable spindle pin
+              if(mihosoft_enable_spindle_toggle && st.exec_block->spindle_toggle) {
+                #ifdef INVERT_SPINDLE_ENABLE_PIN
+                  SPINDLE_ENABLE_PORT |= (1<<SPINDLE_ENABLE_BIT);  // Set pin to high
+                #else
+                  SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT); // Set pin to low
+                #endif
+              }
+        
+        #endif 
+
+
+
         // Initialize Bresenham line and distance counters
         st.counter_x = st.counter_y = st.counter_z = (st.exec_block->step_event_count >> 1);
       }
@@ -400,19 +431,8 @@ ISR(TIMER1_COMPA_vect)
       return; // Nothing to do but exit.
     }
 
+  }
 
-// disable spindle pin
-#ifdef MIHOSOFT_EXTENSIONS_ENABLED    
-  if(mihosoft_enable_spindle_toggle) {
-    #ifdef INVERT_SPINDLE_ENABLE_PIN
-      SPINDLE_ENABLE_PORT |= (1<<SPINDLE_ENABLE_BIT);  // Set pin to high
-    #else
-      SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT); // Set pin to low
-    #endif
-  }
-  
-#endif 
-  }
 
 
   // Check probing state.
@@ -475,17 +495,6 @@ ISR(TIMER1_COMPA_vect)
 
   st.step_count--; // Decrement step events count
   if (st.step_count == 0) {
-
-// enable spindle pin
-#ifdef MIHOSOFT_EXTENSIONS_ENABLED    
-  if(mihosoft_enable_spindle_toggle) {
-    #ifdef INVERT_SPINDLE_ENABLE_PIN
-      SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT); // Set pin to low
-    #else
-      SPINDLE_ENABLE_PORT |= (1<<SPINDLE_ENABLE_BIT);  // Set pin to high
-    #endif
-  }
-#endif 
 
     // Segment is complete. Discard current segment and advance segment indexing.
     st.exec_segment = NULL;
@@ -726,6 +735,11 @@ void st_prep_buffer()
         // segment buffer finishes the prepped block, but the stepper ISR is still executing it.
         st_prep_block = &st_block_buffer[prep.st_block_index];
         st_prep_block->direction_bits = pl_block->direction_bits;
+
+        #ifdef MIHOSOFT_EXTENSIONS_ENABLED
+        st_prep_block->spindle_toggle = pl_block->spindle_toggle;  // Copy from plan block to stepper block
+        #endif
+
         #ifdef ENABLE_DUAL_AXIS
           #if (DUAL_AXIS_SELECT == X_AXIS)
             if (st_prep_block->direction_bits & (1<<X_DIRECTION_BIT)) { 

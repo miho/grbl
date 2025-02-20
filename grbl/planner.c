@@ -325,6 +325,11 @@ uint8_t plan_buffer_line(float *target, plan_line_data_t *pl_data)
     block->line_number = pl_data->line_number;
   #endif
 
+  // copy the spindle toggle
+  #ifdef MIHOSOFT_EXTENSIONS_ENABLED
+    block->spindle_toggle = pl_data->spindle_toggle;
+  #endif
+
   // Compute and store initial move distance data.
   int32_t target_steps[N_AXIS], position_steps[N_AXIS];
   float unit_vec[N_AXIS], delta_mm;

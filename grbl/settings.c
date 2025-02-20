@@ -40,7 +40,7 @@ settings_t settings;
 // '$201=1' -> feature enabled, i.e.,  spindle toggle on segment start
 #ifdef MIHOSOFT_EXTENSIONS_ENABLED
 bool mihosoft_disable_eeprom_write=false;
-bool mihosoft_enable_spindle_toggle=false;
+bool mihosoft_enable_spindle_toggle=true;
 #endif
 
 const __flash settings_t defaults = {\

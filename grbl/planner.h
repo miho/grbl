@@ -83,6 +83,11 @@ typedef struct {
     // Stored spindle speed data used by spindle overrides and resuming methods.
     float spindle_speed;    // Block spindle speed. Copied from pl_line_data.
   #endif
+
+  #ifdef MIHOSOFT_EXTENSIONS_ENABLED
+  uint8_t spindle_toggle;
+  #endif
+
 } plan_block_t;
 
 
@@ -94,6 +99,11 @@ typedef struct {
   #ifdef USE_LINE_NUMBERS
     int32_t line_number;    // Desired line number to report when executing.
   #endif
+
+  #ifdef MIHOSOFT_EXTENSIONS_ENABLED
+    uint8_t spindle_toggle;
+  #endif
+
 } plan_line_data_t;
 
 

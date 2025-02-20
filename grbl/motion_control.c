@@ -87,6 +87,12 @@ void mc_line(float *target, plan_line_data_t *pl_data)
 void mc_arc(float *target, plan_line_data_t *pl_data, float *position, float *offset, float radius,
   uint8_t axis_0, uint8_t axis_1, uint8_t axis_linear, uint8_t is_clockwise_arc)
 {
+
+    // At start of arc, mark first segment as on
+    #ifdef MIHOSOFT_EXTENSIONS_ENABLED
+    pl_data->spindle_toggle = 1;  // Mark start of arc as on
+    #endif
+
   float center_axis0 = position[axis_0] + offset[axis_0];
   float center_axis1 = position[axis_1] + offset[axis_1];
   float r_axis0 = -offset[axis_0];  // Radius vector from center to current location
@@ -180,6 +186,10 @@ void mc_arc(float *target, plan_line_data_t *pl_data, float *position, float *of
       position[axis_1] = center_axis1 + r_axis1;
       position[axis_linear] += linear_per_segment;
 
+
+      #ifdef MIHOSOFT_EXTENSIONS_ENABLED
+        pl_data->spindle_toggle = 0;  // Middle segments toggle off
+      #endif
       mc_line(position, pl_data);
 
       // Bail mid-circle on system abort. Runtime command check already performed by mc_line.
@@ -187,6 +197,11 @@ void mc_arc(float *target, plan_line_data_t *pl_data, float *position, float *of
     }
   }
   // Ensure last segment arrives at target location.
+
+  // For the final segment toggle is on
+  #ifdef MIHOSOFT_EXTENSIONS_ENABLED
+  pl_data->spindle_toggle = 1;  // Mark end of arc
+  #endif
   mc_line(target, pl_data);
 }
 
