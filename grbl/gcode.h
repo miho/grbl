@@ -143,12 +143,15 @@
 #define WORD_L  4
 #define WORD_N  5
 #define WORD_P  6
-#define WORD_R  7
-#define WORD_S  8
-#define WORD_T  9
-#define WORD_X  10
-#define WORD_Y  11
-#define WORD_Z  12
+#define WORD_Q  7  //Q for action toggle
+#define WORD_R  8  // Shifted these up by one to make room for Q
+#define WORD_S  9
+#define WORD_T  10
+#define WORD_X  11
+#define WORD_Y  12
+#define WORD_Z  13
+
+
 
 // Define g-code parser position updating flags
 #define GC_UPDATE_POS_TARGET   0 // Must be zero
@@ -202,7 +205,8 @@ typedef struct {
   uint8_t l;       // G10 or canned cycles parameters
   int32_t n;       // Line number
   float p;         // G10 or dwell parameters
-  // float q;      // G82 peck drilling
+  // float q;      // G82 peck drilling (from original code)
+  float q;         // Add Q value here - we'll use it for toggle control
   float r;         // Arc radius
   float s;         // Spindle speed
   uint8_t t;       // Tool selection

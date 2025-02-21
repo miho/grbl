@@ -22,6 +22,11 @@
 #include "grbl.h"
 
 
+#ifdef MIHOSOFT_EXTENSIONS_ENABLED
+static uint8_t in_arc_motion = 0;  // Flag to track if we're inside an arc
+#endif
+
+
 // Execute linear motion in absolute millimeter coordinates. Feed rate given in millimeters/second
 // unless invert_feed_rate is true. Then the feed_rate means that the motion should be completed in
 // (1 minute)/feed_rate time.
@@ -31,6 +36,14 @@
 // in the planner and to let backlash compensation or canned cycle integration simple and direct.
 void mc_line(float *target, plan_line_data_t *pl_data)
 {
+
+
+  // #ifdef MIHOSOFT_EXTENSIONS_ENABLED
+  // if (!in_arc_motion) {  // Only set toggle if not part of an arc
+  //     pl_data->spindle_toggle = 1;
+  // }
+  // #endif
+
   // If enabled, check for soft limit violations. Placed here all line motions are picked up
   // from everywhere in Grbl.
   if (bit_istrue(settings.flags,BITFLAG_SOFT_LIMIT_ENABLE)) {
@@ -88,9 +101,15 @@ void mc_arc(float *target, plan_line_data_t *pl_data, float *position, float *of
   uint8_t axis_0, uint8_t axis_1, uint8_t axis_linear, uint8_t is_clockwise_arc)
 {
 
+    // For first segment
+    #ifdef MIHOSOFT_EXTENSIONS_ENABLED
+    uint8_t save_toggle = pl_data->spindle_toggle;  // Save original toggle value
+    #endif
+
     // At start of arc, mark first segment as on
     #ifdef MIHOSOFT_EXTENSIONS_ENABLED
-    pl_data->spindle_toggle = 1;  // Mark start of arc as on
+    pl_data->spindle_toggle = save_toggle;  // Mark start of arc as on
+    in_arc_motion = 1;  // Mark that we are in an arc
     #endif
 
   float center_axis0 = position[axis_0] + offset[axis_0];
@@ -199,10 +218,15 @@ void mc_arc(float *target, plan_line_data_t *pl_data, float *position, float *of
   // Ensure last segment arrives at target location.
 
   // For the final segment toggle is on
+    // For last segment:
+    #ifdef MIHOSOFT_EXTENSIONS_ENABLED
+    pl_data->spindle_toggle = save_toggle;  // Restore toggle for last segment
+    #endif
+    mc_line(target, pl_data);
+
   #ifdef MIHOSOFT_EXTENSIONS_ENABLED
-  pl_data->spindle_toggle = 1;  // Mark end of arc
+  in_arc_motion = 0;  // Exit arc mode
   #endif
-  mc_line(target, pl_data);
 }
 
 

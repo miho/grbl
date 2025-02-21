@@ -375,30 +375,21 @@ ISR(TIMER1_COMPA_vect)
         st.exec_block_index = st.exec_segment->st_block_index;
         st.exec_block = &st_block_buffer[st.exec_block_index];
 
-
-
         #ifdef MIHOSOFT_EXTENSIONS_ENABLED    
-        // enable spindle pin
-          if(mihosoft_enable_spindle_toggle && st.exec_block->spindle_toggle) {
+          if(mihosoft_enable_spindle_toggle && st.exec_block->spindle_toggle) { // enable spindle pin
             #ifdef INVERT_SPINDLE_ENABLE_PIN
               SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT); // Set pin to low
             #else
               SPINDLE_ENABLE_PORT |= (1<<SPINDLE_ENABLE_BIT);  // Set pin to high
             #endif
-          }
-        
-              // disable spindle pin
-              if(mihosoft_enable_spindle_toggle && st.exec_block->spindle_toggle) {
+          } else if(mihosoft_enable_spindle_toggle && st.exec_block->spindle_toggle) { // disable spindle pin
                 #ifdef INVERT_SPINDLE_ENABLE_PIN
                   SPINDLE_ENABLE_PORT |= (1<<SPINDLE_ENABLE_BIT);  // Set pin to high
                 #else
                   SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT); // Set pin to low
                 #endif
-              }
-        
+          }
         #endif 
-
-
 
         // Initialize Bresenham line and distance counters
         st.counter_x = st.counter_y = st.counter_z = (st.exec_block->step_event_count >> 1);
